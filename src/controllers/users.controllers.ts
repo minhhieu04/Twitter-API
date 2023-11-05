@@ -1,17 +1,12 @@
 import { Request, Response } from "express"
-import User from "~/models/schemas"
-import databaseService from "~/services/database.services"
+import usersService from "~/services/users.services"
 
-export const userRegister = async (req: Request, res: Response) => {
+export const userRegisterController = async (req: Request, res: Response) => {
     const { email, password } = req.body
     try {
-        const result = await databaseService.users.insertOne(new User({
-            email,
-            password
-        }))
+        usersService.reigster({ email, password })
         res.status(201).json({
-            message: "User created successfully",
-            result
+            message: "User created successfully"
         })
     } catch (error) {
         console.log(error)

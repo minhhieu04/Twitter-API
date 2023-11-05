@@ -1,7 +1,7 @@
-import { Router } from "express";
-import { userRegister } from "~/controllers/users.controllers";
-const userRouter = Router();
+import { Router } from 'express'
+import { userRegisterController } from '~/controllers/users.controllers'
+const userRouter = Router()
 
-userRouter.post("/register", userRegister)
+userRouter.post('/register', userRegisterController)
 
 export default userRouter

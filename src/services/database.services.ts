@@ -1,6 +1,6 @@
 import { MongoClient, ServerApiVersion, Db, Collection } from "mongodb"
 import { config } from "dotenv";
-import User from "~/models/schemas";
+import User from "~/models/schemas/users.schemas";
 config()
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@minhhieu.rhbjque.mongodb.net/?retryWrites=true&w=majority`;
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
