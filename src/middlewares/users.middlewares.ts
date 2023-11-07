@@ -1,3 +1,4 @@
+import usersService from '~/services/users.services';
 import { validate } from './../utils/validation';
 import { checkSchema } from "express-validator";
 
@@ -17,7 +18,16 @@ export const registerValidator = validate(checkSchema({
         isEmail: true,
         trim: true,
         escape: true,
-        errorMessage: "Invalid email"
+        errorMessage: "Invalid email",
+        custom: {
+            options: async (email: string) => {
+                const isExistEmail = await usersService.checkEmailExist(email)
+                if (isExistEmail) {
+                    throw new Error("Email already in use");
+                }
+                return true;
+            }
+        }
     },
     password: {
         notEmpty: true,
