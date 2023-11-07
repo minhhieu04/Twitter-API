@@ -1,12 +1,12 @@
-import User from "~/models/schemas/users.schemas";
+import User from "~/models/schemas/User.schemas";
 import databaseService from "./database.services";
+import { RegisterReqBody } from "~/models/requests/User.requests";
 
 class UsersService {
-    async reigster(payload: { email: string, password: string }) {
-        const { email, password } = payload
+    async reigster(payload: RegisterReqBody) {
         const result = await databaseService.users.insertOne(new User({
-            email,
-            password
+            ...payload,
+            date_of_birth: new Date(payload.date_of_birth)
         }))
         return result
     }
