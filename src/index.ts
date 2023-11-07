@@ -1,7 +1,7 @@
-import express from "express"
-import env from "dotenv"
-import databaseService from "~/services/database.services"
-import userRouter from "~/routes/users.routes"
+import express from 'express'
+import env from 'dotenv'
+import databaseService from '~/services/database.services'
+import userRouter from '~/routes/users.routes'
 
 env.config()
 
@@ -9,12 +9,11 @@ const app = express()
 const PORT = process.env.PORT_LOCAL
 app.use(express.json())
 
-app.get("/", (req, res) => {
-  res.send("Twitter API")
+app.get('/', (req, res) => {
+  res.send('Twitter API')
 })
 
 app.use('/users', userRouter)
-
 
 databaseService.connect()
 
