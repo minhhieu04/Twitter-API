@@ -2,6 +2,7 @@ import express from 'express'
 import env from 'dotenv'
 import databaseService from '~/services/database.services'
 import userRouter from '~/routes/users.routes'
+import { errorHandler } from './utils/handles'
 
 env.config()
 
@@ -14,6 +15,7 @@ app.get('/', (req, res) => {
 })
 
 app.use('/users', userRouter)
+app.use(errorHandler)
 
 databaseService.connect()
 
