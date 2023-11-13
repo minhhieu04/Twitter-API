@@ -6,6 +6,8 @@ import { hashPassword } from '~/utils/crypto'
 import { signToken } from '~/utils/jwt'
 import { TokenType } from '~/constants/enums'
 import { ObjectId } from 'mongodb'
+import { config } from 'dotenv'
+config()
 
 class UsersService {
   private signAccessToken(user_id: string) {
