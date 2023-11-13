@@ -18,5 +18,9 @@ export const USERS_MESSAGE = {
     'Confirm password must contain at least 6 characters, at least 1 uppercase letter and at least 1 number',
   PASSWORD_DO_NOT_MATCH: 'Password do not match',
   DATE_OF_BIRTH_IS_REQUIRED: 'Date of birth must be required',
-  DATE_OF_BIRTH_MUST_BE_ISO8601: 'Date of birth must be a valid ISO 8601 date'
+  DATE_OF_BIRTH_MUST_BE_ISO8601: 'Date of birth must be a valid ISO 8601 date',
+  USER_NOT_FOUND: 'User not found',
+  WRONG_PASSWORD: 'Wrong password',
+  REGISTER_SUCCESS: 'Registration success',
+  LOGIN_SUCCESS: 'Login success'
 } as const
