@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ObjectId } from 'mongodb'
 import { USERS_MESSAGE } from '~/constants/message'
-import { LoginReqBody, RegisterReqBody } from '~/models/requests/User.requests'
+import { LoginReqBody, LogoutReqBody, RegisterReqBody } from '~/models/requests/User.requests'
 import User from '~/models/schemas/User.schemas'
 import usersService from '~/services/users.services'
 
@@ -22,4 +22,10 @@ export const userLoginController = async (req: Request<ParamsDictionary, any, Lo
     message: USERS_MESSAGE.LOGIN_SUCCESS,
     result
   })
+}
+
+export const userLogoutController = async (req: Request<ParamsDictionary, any, LogoutReqBody>, res: Response) => {
+  const { refresh_token } = req.body
+  const result = await usersService.logout(refresh_token)
+  res.status(200).json(result)
 }
