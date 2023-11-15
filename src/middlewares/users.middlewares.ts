@@ -193,6 +193,7 @@ export const refreshTokenValidator = validate(
   checkSchema(
     {
       refresh_token: {
+        trim: true,
         custom: {
           options: async (value: string, { req }) => {
             try {
@@ -222,6 +223,40 @@ export const refreshTokenValidator = validate(
               }
               throw error
             }
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)
+
+export const emailVerifyTokenValidator = validate(
+  checkSchema(
+    {
+      email_verify_token: {
+        trim: true,
+        custom: {
+          options: async (value: string, { req }) => {
+            if (!value) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGE.EMAIL_VERIFICATION_TOKEN_IS_REQUIRED,
+                status: HTTP_STATUS.UNAUTHORIZED
+              })
+            }
+            try {
+              const decode_email_verify_token = await verifyToken({
+                token: value,
+                publicOrPrivateKey: process.env.JWT_SECRET_EMAIL_VERIFY_TOKEN as string
+              })
+              ;(req as Request).decode_email_verify_token = decode_email_verify_token
+            } catch (error) {
+              throw new ErrorWithStatus({
+                message: capitalize((error as JsonWebTokenError).message),
+                status: HTTP_STATUS.UNAUTHORIZED
+              })
+            }
+            return true
           }
         }
       }

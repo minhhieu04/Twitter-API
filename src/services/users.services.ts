@@ -4,7 +4,7 @@ import databaseService from './database.services'
 import { RegisterReqBody } from '~/models/requests/User.requests'
 import { hashPassword } from '~/utils/crypto'
 import { signToken } from '~/utils/jwt'
-import { TokenType } from '~/constants/enums'
+import { TokenType, UserVerifyStatus } from '~/constants/enums'
 import { ObjectId } from 'mongodb'
 import { config } from 'dotenv'
 import { USERS_MESSAGE } from '~/constants/message'
@@ -35,22 +35,39 @@ class UsersService {
       }
     })
   }
+  private signEmailVerifyToken(user_id: string) {
+    return signToken({
+      payload: {
+        user_id,
+        token_type: TokenType.EmailVerificationToken
+      },
+      privateKey: process.env.JWT_SECRET_EMAIL_VERIFY_TOKEN as string,
+      options: {
+        expiresIn: process.env.EMAIL_VERIFY_TOKEN_LIFE
+      }
+    })
+  }
   private generateAccessTokenAndRefreshToken(user_id: string) {
     return Promise.all([this.signAccessToken(user_id), this.signRefreshToken(user_id)])
   }
   async register(payload: RegisterReqBody) {
-    const result = await databaseService.users.insertOne(
+    const user_id = new ObjectId()
+    const email_verify_token = await this.signEmailVerifyToken(user_id.toString())
+    await databaseService.users.insertOne(
       new User({
         ...payload,
+        _id: user_id,
+        email_verify_token,
         date_of_birth: new Date(payload.date_of_birth),
         password: hashPassword(payload.password)
       })
     )
-    const user_id = result.insertedId.toString()
-    const [access_token, refresh_token] = await this.generateAccessTokenAndRefreshToken(user_id)
+    // const user_id = result.insertedId.toString()
+    const [access_token, refresh_token] = await this.generateAccessTokenAndRefreshToken(user_id.toString())
     await databaseService.refreshToken.insertOne(
       new RefreshToken({ user_id: new ObjectId(user_id), token: refresh_token })
     )
+    console.log('email_verify_token: ' + email_verify_token)
     return {
       user_id,
       access_token,
@@ -78,6 +95,31 @@ class UsersService {
     await databaseService.refreshToken.deleteOne({ token: refreshToken })
     return {
       message: USERS_MESSAGE.LOGOUT_SUCCESS
+    }
+  }
+
+  async verifyEmail(user_id: string) {
+    // Update verify status and update_at time in the collection User is ''
+    // At the same time also return accessToken and refreshToken
+    const [token] = await Promise.all([
+      this.generateAccessTokenAndRefreshToken(user_id),
+      databaseService.users.updateOne(
+        {
+          _id: new ObjectId(user_id)
+        },
+        {
+          $set: {
+            email_verify_token: '',
+            verify: UserVerifyStatus.Verified,
+            update_at: new Date()
+          }
+        }
+      )
+    ])
+    const [accessToken, refreshToken] = token
+    return {
+      accessToken,
+      refreshToken
     }
   }
 }
