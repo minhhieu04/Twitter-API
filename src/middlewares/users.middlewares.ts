@@ -152,11 +152,15 @@ export const accessTokenValidator = validate(
   checkSchema(
     {
       Authorization: {
-        notEmpty: {
-          errorMessage: USERS_MESSAGE.ACCESS_TOKEN_IS_REQUIRED
-        },
+        trim: true,
         custom: {
           options: async (value: string, { req }) => {
+            if (!value) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGE.ACCESS_TOKEN_IS_REQUIRED,
+                status: HTTP_STATUS.UNAUTHORIZED
+              })
+            }
             const accessToken = value.split(' ')[1]
             if (!accessToken) {
               throw new ErrorWithStatus({
@@ -189,12 +193,15 @@ export const refreshTokenValidator = validate(
   checkSchema(
     {
       refresh_token: {
-        notEmpty: {
-          errorMessage: USERS_MESSAGE.REFRESH_TOKEN_IS_REQUIRED
-        },
         custom: {
           options: async (value: string, { req }) => {
             try {
+              if (!value) {
+                throw new ErrorWithStatus({
+                  message: USERS_MESSAGE.REFRESH_TOKEN_IS_REQUIRED,
+                  status: HTTP_STATUS.UNAUTHORIZED
+                })
+              }
               const [authorization, decode_refresh_token] = await Promise.all([
                 databaseService.refreshToken.findOne({ token: value }),
                 verifyToken({ token: value, publicOrPrivateKey: process.env.JWT_SECRET_REFRESH_TOKEN as string })
