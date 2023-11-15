@@ -165,7 +165,10 @@ export const accessTokenValidator = validate(
               })
             }
             try {
-              const decode_authorization = await verifyToken({ token: accessToken })
+              const decode_authorization = await verifyToken({
+                token: accessToken,
+                publicOrPrivateKey: process.env.JWT_SECRET_ACCESS_TOKEN as string
+              })
               ;(req as Request).decode_authorization = decode_authorization
             } catch (error) {
               throw new ErrorWithStatus({
@@ -194,7 +197,7 @@ export const refreshTokenValidator = validate(
             try {
               const [authorization, decode_refresh_token] = await Promise.all([
                 databaseService.refreshToken.findOne({ token: value }),
-                verifyToken({ token: value })
+                verifyToken({ token: value, publicOrPrivateKey: process.env.JWT_SECRET_REFRESH_TOKEN as string })
               ])
               if (authorization === null) {
                 throw new ErrorWithStatus({

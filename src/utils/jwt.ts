@@ -5,11 +5,11 @@ config()
 
 export const signToken = ({
   payload,
-  privateKey = process.env.JWT_SECRET as string,
+  privateKey,
   options
 }: {
   payload: string | Buffer | object
-  privateKey?: string
+  privateKey: string
   options: jwt.SignOptions
 }) => {
   return new Promise<string>((resolve, reject) => {
@@ -22,13 +22,7 @@ export const signToken = ({
   })
 }
 
-export const verifyToken = ({
-  token,
-  publicOrPrivateKey = process.env.JWT_SECRET as string
-}: {
-  token: string
-  publicOrPrivateKey?: string
-}) => {
+export const verifyToken = ({ token, publicOrPrivateKey }: { token: string; publicOrPrivateKey: string }) => {
   return new Promise<TokenPayload>((resolve, reject) => {
     jwt.verify(token, publicOrPrivateKey, (error, decode) => {
       if (error) {
