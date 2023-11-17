@@ -124,6 +124,22 @@ class UsersService {
       refreshToken
     }
   }
+
+  async resendEmailVerification(user_id: string) {
+    const email_verify_token = await this.signEmailVerifyToken(user_id)
+    // simulation send email verification
+    console.log({ email_verify_token })
+    // update email_verify_token field in document user
+    await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
+      {
+        $set: {
+          email_verify_token,
+          updated_at: '$$NOW'
+        }
+      }
+    ])
+    return { message: USERS_MESSAGE.RESEND_EMAIL_VERIFICATION_SUCCESS }
+  }
 }
 
 const usersService = new UsersService()

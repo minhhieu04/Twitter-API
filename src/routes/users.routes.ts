@@ -1,6 +1,7 @@
 import { wrapRequestHandler } from './../utils/handles'
 import { Router } from 'express'
 import {
+  resentEmailVerifyController,
   userLoginController,
   userLogoutController,
   userRegisterController,
@@ -41,11 +42,20 @@ userRouter.post('/login', loginValidator, wrapRequestHandler(userLoginController
 userRouter.post('/logout', accessTokenValidator, refreshTokenValidator, wrapRequestHandler(userLogoutController))
 
 /**
- * Description: Verify email when user is register
+ * Description: Verify email when user click on the link in email
  * Path: verify-email/
  * Method: POST
  * Body: { email_verify_token: string }
  */
 userRouter.post('/verify-email', emailVerifyTokenValidator, wrapRequestHandler(verifyEmailController))
+
+/**
+ * Description: Resent email verify when user doesn't verify click on the button resend the email verification token
+ * Path: resent-verify-email/
+ * Method: POST
+ * Headers: { Authorization: 'Bearer ' + access_token }
+ * Body: {}
+ */
+userRouter.post('/resend-email-verify', accessTokenValidator, wrapRequestHandler(resentEmailVerifyController))
 
 export default userRouter

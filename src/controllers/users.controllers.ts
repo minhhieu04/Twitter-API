@@ -1,6 +1,7 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
-import { ObjectId } from 'mongodb'
+import { ObjectId, ReturnDocument } from 'mongodb'
+import { UserVerifyStatus } from '~/constants/enums'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { USERS_MESSAGE } from '~/constants/message'
 import { ErrorWithStatus } from '~/models/Errors'
@@ -64,4 +65,22 @@ export const verifyEmailController = async (req: Request<ParamsDictionary, any, 
     message: USERS_MESSAGE.VERIFY_EMAIL_SUCCESS,
     result
   })
+}
+
+export const resentEmailVerifyController = async (req: Request, res: Response) => {
+  const { user_id } = req.decode_authorization as TokenPayload
+  if (!user_id) {
+    throw new ErrorWithStatus({
+      message: USERS_MESSAGE.USER_NOT_FOUND,
+      status: HTTP_STATUS.NOT_FOUND
+    })
+  }
+  const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
+  if (user?.verify === UserVerifyStatus.Verified) {
+    return res.json({
+      message: USERS_MESSAGE.EMAIL_ALREADY_VERIFIED_BEFORE
+    })
+  }
+  const result = usersService.resendEmailVerification(user_id)
+  return res.json({ result })
 }
