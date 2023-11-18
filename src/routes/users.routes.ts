@@ -1,6 +1,7 @@
 import { wrapRequestHandler } from './../utils/handles'
 import { Router } from 'express'
 import {
+  forgotPasswordController,
   resentEmailVerifyController,
   userLoginController,
   userLogoutController,
@@ -12,7 +13,8 @@ import {
   accessTokenValidator,
   registerValidator,
   refreshTokenValidator,
-  emailVerifyTokenValidator
+  emailVerifyTokenValidator,
+  forgotPasswordValidator
 } from '~/middlewares/users.middlewares'
 const userRouter = Router()
 
@@ -57,5 +59,13 @@ userRouter.post('/verify-email', emailVerifyTokenValidator, wrapRequestHandler(v
  * Body: {}
  */
 userRouter.post('/resend-email-verify', accessTokenValidator, wrapRequestHandler(resentEmailVerifyController))
+
+/**
+ * Description: When the user forgot password and click on the button, then user submit email to reset password, a link is will be sent to the email
+ * Path: resent-verify-email/
+ * Method: POST
+ * Body: {email: string}
+ */
+userRouter.post('/forgot-password', forgotPasswordValidator, wrapRequestHandler(forgotPasswordController))
 
 export default userRouter

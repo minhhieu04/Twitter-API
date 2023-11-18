@@ -1,6 +1,6 @@
 import usersService from '~/services/users.services'
 import { validate } from './../utils/validation'
-import { body, checkSchema } from 'express-validator'
+import { body, check, checkSchema } from 'express-validator'
 import { USERS_MESSAGE } from '~/constants/message'
 import databaseService from '~/services/database.services'
 import { hashPassword } from '~/utils/crypto'
@@ -263,4 +263,30 @@ export const emailVerifyTokenValidator = validate(
     },
     ['body']
   )
+)
+
+export const forgotPasswordValidator = validate(
+  checkSchema({
+    email: {
+      notEmpty: {
+        errorMessage: USERS_MESSAGE.EMAIL_IS_REQUIRED
+      },
+      isEmail: {
+        errorMessage: USERS_MESSAGE.EMAIL_IS_INVALID
+      },
+      trim: true,
+      escape: true,
+      custom: {
+        options: async (email: string, { req }) => {
+          const user = await databaseService.users.findOne({ email: email })
+          if (!user) {
+            throw new Error(USERS_MESSAGE.USER_NOT_FOUND)
+          }
+
+          req.user = user
+          return true
+        }
+      }
+    }
+  })
 )
