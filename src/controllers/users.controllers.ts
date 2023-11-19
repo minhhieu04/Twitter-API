@@ -6,12 +6,13 @@ import HTTP_STATUS from '~/constants/httpStatus'
 import { USERS_MESSAGE } from '~/constants/message'
 import { ErrorWithStatus } from '~/models/Errors'
 import {
-  ForgotPassWordReqBody,
+  ForgotPasswordReqBody,
   LoginReqBody,
   LogoutReqBody,
   RegisterReqBody,
   TokenPayload,
-  VerifyEmailReqBody
+  VerifyEmailReqBody,
+  VerifyForgotPasswordTokenReqBody
 } from '~/models/requests/User.requests'
 import User from '~/models/schemas/User.schemas'
 import databaseService from '~/services/database.services'
@@ -87,10 +88,17 @@ export const resentEmailVerifyController = async (req: Request, res: Response) =
 }
 
 export const forgotPasswordController = async (
-  req: Request<ParamsDictionary, any, ForgotPassWordReqBody>,
+  req: Request<ParamsDictionary, any, ForgotPasswordReqBody>,
   res: Response
 ) => {
   const { _id } = req.user as User
   const result = await usersService.forgotPassword((_id as ObjectId).toString())
   return res.json({ result })
+}
+
+export const verifyForgotPasswordTokenController = async (
+  req: Request<ParamsDictionary, any, VerifyForgotPasswordTokenReqBody>,
+  res: Response
+) => {
+  return res.json({ message: USERS_MESSAGE.VERIFY_FORGOT_PASSWORD_SUCCESS })
 }

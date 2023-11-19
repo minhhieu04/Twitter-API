@@ -174,6 +174,10 @@ class UsersService {
       message: USERS_MESSAGE.CHECK_EMAIL_TO_RESET_PASSWORD
     }
   }
+
+  // async verifyForgotPasswordToken(user_id: string) {
+  //   await
+  // }
 }
 
 const usersService = new UsersService()

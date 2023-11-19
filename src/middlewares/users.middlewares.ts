@@ -1,3 +1,4 @@
+import { ErrorWithStatus } from './../models/Errors'
 import usersService from '~/services/users.services'
 import { validate } from './../utils/validation'
 import { body, check, checkSchema } from 'express-validator'
@@ -5,11 +6,11 @@ import { USERS_MESSAGE } from '~/constants/message'
 import databaseService from '~/services/database.services'
 import { hashPassword } from '~/utils/crypto'
 import { verifyToken } from '~/utils/jwt'
-import { ErrorWithStatus } from '~/models/Errors'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { JsonWebTokenError } from 'jsonwebtoken'
 import { capitalize } from 'lodash'
 import { Request } from 'express'
+import { ObjectId } from 'mongodb'
 
 export const registerValidator = validate(
   checkSchema(
@@ -289,4 +290,56 @@ export const forgotPasswordValidator = validate(
       }
     }
   })
+)
+
+export const verifyForgotPasswordTokenValidator = validate(
+  checkSchema(
+    {
+      forgot_password_token: {
+        trim: true,
+        custom: {
+          options: async (value: string, { req }) => {
+            if (value === undefined) {
+              throw new ErrorWithStatus({
+                message: USERS_MESSAGE.FORGOT_PASSWORD_TOKEN_IS_REQUIRED,
+                status: HTTP_STATUS.UNAUTHORIZED
+              })
+            }
+            try {
+              const decode_forgot_password_token = await verifyToken({
+                token: value,
+                publicOrPrivateKey: process.env.JWT_FORGOT_PASSWORD_TOKEN as string
+              })
+              const { user_id } = decode_forgot_password_token
+              const user = await databaseService.users.findOne({
+                _id: new ObjectId(user_id)
+              })
+              if (!user) {
+                throw new ErrorWithStatus({
+                  message: USERS_MESSAGE.USER_NOT_FOUND,
+                  status: HTTP_STATUS.NOT_FOUND
+                })
+              }
+              if (user.forgot_password_token !== value) {
+                throw new ErrorWithStatus({
+                  message: USERS_MESSAGE.INVALID_FORGOT_PASSWORD_TOKEN,
+                  status: HTTP_STATUS.UNAUTHORIZED
+                })
+              }
+            } catch (error) {
+              if (error instanceof ErrorWithStatus) {
+                throw new ErrorWithStatus({
+                  message: capitalize(error.message),
+                  status: HTTP_STATUS.UNAUTHORIZED
+                })
+              }
+              throw error
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['body']
+  )
 )
