@@ -1,6 +1,11 @@
 import { wrapRequestHandler } from './../utils/handles'
 import { Router } from 'express'
-import { userLoginController, userLogoutController, userRegisterController } from '~/controllers/users.controllers'
+import {
+  getMeController,
+  userLoginController,
+  userLogoutController,
+  userRegisterController
+} from '~/controllers/users.controllers'
 import {
   loginValidator,
   accessTokenValidator,
@@ -33,5 +38,13 @@ userRouter.post('/login', loginValidator, wrapRequestHandler(userLoginController
  * Body: { refresh_token: string }
  */
 userRouter.post('/logout', accessTokenValidator, refreshTokenValidator, wrapRequestHandler(userLogoutController))
+
+/**
+ * Description: Get my profile
+ * Path: me/
+ * Method: GET
+ * Headers: { Authorization: 'Bearer ' + access_token }
+ */
+userRouter.get('/me', accessTokenValidator, wrapRequestHandler(getMeController))
 
 export default userRouter
