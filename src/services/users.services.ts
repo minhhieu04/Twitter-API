@@ -125,7 +125,7 @@ class UsersService {
             verify: UserVerifyStatus.Verified
           },
           $currentDate: {
-            update_at: true
+            updated_at: true
           }
         }
       )
@@ -163,7 +163,7 @@ class UsersService {
           forgot_password_token
         },
         $currentDate: {
-          update_at: true
+          updated_at: true
         }
       }
     )
@@ -175,9 +175,25 @@ class UsersService {
     }
   }
 
-  // async verifyForgotPasswordToken(user_id: string) {
-  //   await
-  // }
+  async resetPassword(user_id: string, new_password: string) {
+    await databaseService.users.updateOne(
+      {
+        _id: new ObjectId(user_id)
+      },
+      {
+        $set: {
+          forgot_password_token: '',
+          password: hashPassword(new_password)
+        },
+        setCurrentDate: {
+          updated_at: true
+        }
+      }
+    )
+    return {
+      message: USERS_MESSAGE.RESET_PASSWORD_SUCCESS
+    }
+  }
 }
 
 const usersService = new UsersService()

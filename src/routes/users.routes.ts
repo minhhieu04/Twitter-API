@@ -3,6 +3,7 @@ import { Router } from 'express'
 import {
   forgotPasswordController,
   resentEmailVerifyController,
+  resetPasswordController,
   userLoginController,
   userLogoutController,
   userRegisterController,
@@ -16,7 +17,8 @@ import {
   refreshTokenValidator,
   emailVerifyTokenValidator,
   forgotPasswordValidator,
-  verifyForgotPasswordTokenValidator
+  verifyForgotPasswordTokenValidator,
+  resetPasswordValidator
 } from '~/middlewares/users.middlewares'
 const userRouter = Router()
 
@@ -81,5 +83,13 @@ userRouter.post(
   verifyForgotPasswordTokenValidator,
   wrapRequestHandler(verifyForgotPasswordTokenController)
 )
+
+/**
+ * Description: Reset password when verify forgot password token successfully
+ * Path: reset-password/
+ * Method: POST
+ * Body: {forgot_password_token: string, password: string, confirm_password: string}
+ */
+userRouter.post('/reset-password', resetPasswordValidator, wrapRequestHandler(resetPasswordController))
 
 export default userRouter
