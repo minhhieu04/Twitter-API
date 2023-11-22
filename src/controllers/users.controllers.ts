@@ -30,7 +30,7 @@ export const userRegisterController = async (req: Request<ParamsDictionary, any,
 export const userLoginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
   const user = req.user as User
   const user_id = user._id
-  const result = await usersService.login(user_id.toString())
+  const result = await usersService.login({ user_id: user_id.toString(), verify: user.verify })
   res.status(201).json({
     message: USERS_MESSAGE.LOGIN_SUCCESS,
     result
@@ -92,8 +92,8 @@ export const forgotPasswordController = async (
   req: Request<ParamsDictionary, any, ForgotPasswordReqBody>,
   res: Response
 ) => {
-  const { _id } = req.user as User
-  const result = await usersService.forgotPassword((_id as ObjectId).toString())
+  const { _id, verify } = req.user as User
+  const result = await usersService.forgotPassword({ user_id: (_id as ObjectId).toString(), verify })
   return res.json({ result })
 }
 
