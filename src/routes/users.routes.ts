@@ -1,6 +1,7 @@
 import { wrapRequestHandler } from './../utils/handles'
 import { Router } from 'express'
 import {
+  changePasswordController,
   followController,
   forgotPasswordController,
   getMeController,
@@ -27,7 +28,8 @@ import {
   verifiedUserValidator,
   updateMeValidator,
   followValidator,
-  unfollowValidator
+  unfollowValidator,
+  changePasswordValidator
 } from '~/middlewares/users.middlewares'
 import { RegisterReqBody, ResetPasswordReqBody, UpdateMeReqBody } from '~/models/requests/User.requests'
 const userRouter = Router()
@@ -165,7 +167,7 @@ userRouter.post(
  * Path: follow/:followed_user_id
  * Method: DELETE
  * Headers: { Authorization: 'Bearer ' + access_token }
- * { Params: user_id }
+ * Params: followed_user_id
  */
 userRouter.delete(
   '/follow/:followed_user_id',
@@ -173,6 +175,21 @@ userRouter.delete(
   verifiedUserValidator,
   unfollowValidator,
   wrapRequestHandler(unfollowController)
+)
+
+/**
+ * Description: Change password
+ * Path: change-password
+ * Method: PUT
+ * Headers: { Authorization: 'Bearer ' + access_token }
+ * Body: { old_password: string, new_password: string, confirm_new_password: string }
+ */
+userRouter.put(
+  '/change-password',
+  accessTokenValidator,
+  verifiedUserValidator,
+  changePasswordValidator,
+  wrapRequestHandler(changePasswordController)
 )
 
 export default userRouter
