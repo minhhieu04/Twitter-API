@@ -266,6 +266,21 @@ class UsersService {
     }
     return { message: USERS_MESSAGE.FOLLOWED }
   }
+
+  async unfollow(user_id: string, followed_user_id: string) {
+    const checkFollower = await databaseService.followers.findOne({
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
+    })
+    if (!checkFollower) {
+      return { message: USERS_MESSAGE.ALREADY_UNFOLLOWED }
+    }
+    await databaseService.followers.deleteOne({
+      user_id: new ObjectId(user_id),
+      followed_user_id: new ObjectId(followed_user_id)
+    })
+    return { message: USERS_MESSAGE.UNFOLLOW_SUCCESS }
+  }
 }
 
 const usersService = new UsersService()

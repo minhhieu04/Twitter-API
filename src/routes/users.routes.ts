@@ -6,6 +6,7 @@ import {
   getMeController,
   resentEmailVerifyController,
   resetPasswordController,
+  unfollowController,
   updateMeController,
   userLoginController,
   userLogoutController,
@@ -25,7 +26,8 @@ import {
   resetPasswordValidator,
   verifiedUserValidator,
   updateMeValidator,
-  followValidator
+  followValidator,
+  unfollowValidator
 } from '~/middlewares/users.middlewares'
 import { RegisterReqBody, ResetPasswordReqBody, UpdateMeReqBody } from '~/models/requests/User.requests'
 const userRouter = Router()
@@ -156,6 +158,21 @@ userRouter.post(
   verifiedUserValidator,
   followValidator,
   wrapRequestHandler(followController)
+)
+
+/**
+ * Description: Unfollow someone
+ * Path: follow/:followed_user_id
+ * Method: DELETE
+ * Headers: { Authorization: 'Bearer ' + access_token }
+ * { Params: user_id }
+ */
+userRouter.delete(
+  '/follow/:followed_user_id',
+  accessTokenValidator,
+  verifiedUserValidator,
+  unfollowValidator,
+  wrapRequestHandler(unfollowController)
 )
 
 export default userRouter
