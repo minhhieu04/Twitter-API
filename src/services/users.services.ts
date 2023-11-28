@@ -4,11 +4,14 @@ import databaseService from './database.services'
 import { RegisterReqBody, UpdateMeReqBody } from '~/models/requests/User.requests'
 import { hashPassword } from '~/utils/crypto'
 import { signToken } from '~/utils/jwt'
-import { TokenType, UserVerifyStatus } from '~/constants/enums'
+import { TokenType, UserVerifyStatus, newUserType } from '~/constants/enums'
 import { ObjectId } from 'mongodb'
 import { config } from 'dotenv'
 import { USERS_MESSAGE } from '~/constants/message'
 import Follower from '~/models/schemas/Follower.schema'
+import axios from 'axios'
+import { ErrorWithStatus } from '~/models/Errors'
+import HTTP_STATUS from '~/constants/httpStatus'
 config()
 
 class UsersService {
@@ -67,6 +70,43 @@ class UsersService {
   private generateAccessTokenAndRefreshToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
     return Promise.all([this.signAccessToken({ user_id, verify }), this.signRefreshToken({ user_id, verify })])
   }
+  private async getOAuthToken(code: string): Promise<{ access_token: string; id_token: string }> {
+    const body = {
+      code,
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      client_secret: process.env.GOOGLE_CLIENT_SECRET,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+      grant_type: 'authorization_code'
+    }
+    const { data } = await axios.post('https://oauth2.googleapis.com/token', body, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    })
+    return data
+  }
+  private async getUserInfoWithGoogle(access_token: string, id_token: string) {
+    const { data } = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+      params: {
+        access_token,
+        alt: 'json'
+      },
+      headers: {
+        Authorization: 'Bearer ' + id_token
+      }
+    })
+    return data as {
+      sub: string
+      name: string
+      given_name: string
+      picture: string
+      family_name: string
+      email: string
+      email_verified: boolean
+      locale: string
+    }
+  }
+
   async register(payload: RegisterReqBody) {
     const user_id = new ObjectId()
     const email_verify_token = await this.signEmailVerifyToken({
@@ -111,6 +151,28 @@ class UsersService {
       user_id,
       access_token,
       refresh_token
+    }
+  }
+
+  async oauth(code: string) {
+    const { access_token, id_token } = await this.getOAuthToken(code)
+    const userInfo = await this.getUserInfoWithGoogle(access_token, id_token)
+    // Check if the email is registered
+    const user = await databaseService.users.findOne({ email: userInfo.email })
+    // If it already exists, log in
+    if (user) {
+      const data = await this.login({ user_id: user._id.toString(), verify: user.verify })
+      return { ...data, newUser: newUserType.Login, verify: user.verify }
+    } else {
+      // If it doesn't exist yet, register
+      const data = await this.register({
+        name: userInfo.name,
+        email: userInfo.email,
+        password: userInfo.sub,
+        confirm_password: userInfo.sub,
+        date_of_birth: new Date().toISOString()
+      })
+      return { ...data, newUser: newUserType.Register, verify: UserVerifyStatus.Unverified }
     }
   }
 

@@ -1,6 +1,7 @@
 import { wrapRequestHandler } from './../utils/handles'
 import { Router } from 'express'
 import {
+  OAuthController,
   changePasswordController,
   followController,
   forgotPasswordController,
@@ -54,6 +55,14 @@ userRouter.post(
  * Body: { email: string, password: string }
  */
 userRouter.post('/login', loginValidator, wrapRequestHandler(userLoginController))
+
+/**
+ * Description: Login with Google OAuth
+ * Path: /oauth/google
+ * Method: GET
+ * query: { code: string }
+ */
+userRouter.get('/oauth/google', wrapRequestHandler(OAuthController))
 
 /**
  * Description: Logout a user
