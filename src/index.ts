@@ -3,6 +3,7 @@ import env from 'dotenv'
 import databaseService from '~/services/database.services'
 import userRouter from '~/routes/users.routes'
 import { defaultErrorHandler } from './middlewares/error.middlewares'
+import mediaRouter from './routes/medias.routes'
 
 env.config()
 
@@ -16,6 +17,7 @@ app.get('/', (req, res) => {
 })
 
 app.use('/users', userRouter)
+app.use('/medias', mediaRouter)
 app.use(defaultErrorHandler)
 
 app.listen(PORT, () => {
