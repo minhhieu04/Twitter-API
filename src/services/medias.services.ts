@@ -21,8 +21,8 @@ class MediaService {
       }
     })
     return isProduction
-      ? `${process.env.SERVER_HOST_URL}/medias/photo/${newFilename}`
-      : `${process.env.SERVER_LOCAL_URL}/medias/photo/${newFilename}`
+      ? `${process.env.SERVER_HOST_URL}/medias/photo/${newFilename}.jpg`
+      : `${process.env.SERVER_LOCAL_URL}/medias/photo/${newFilename}.jpg`
   }
 }
 
