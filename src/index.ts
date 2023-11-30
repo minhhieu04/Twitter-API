@@ -14,7 +14,7 @@ databaseService.connect()
 app.use(express.json())
 
 // create uploads folder
-initFoler('uploads')
+initFoler()
 
 app.get('/', (req, res) => {
   res.send('Twitter API')
