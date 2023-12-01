@@ -22,6 +22,11 @@ export const getFileNameWithoutExtension = (fileName: string) => {
   return nameArr.join('')
 }
 
+export const getExtention = (fileName: string) => {
+  const nameArr = fileName.split('.')
+  return nameArr[nameArr.length - 1]
+}
+
 export const handleUploadImage = async (req: Request) => {
   const form = formidable({
     uploadDir: UPLOAD_IMAGE_TEMP_DIR,
@@ -54,7 +59,6 @@ export const handleUploadVideo = async (req: Request) => {
   const form = formidable({
     uploadDir: UPLOAD_VIDEO_DIR,
     maxFiles: 1,
-    keepExtensions: true,
     maxFileSize: 80 * 1024 * 1024, // 80MB
     filter: function ({ name, originalFilename, mimetype }) {
       const valid = name === 'video' && Boolean(mimetype?.includes('video/'))
@@ -72,7 +76,11 @@ export const handleUploadVideo = async (req: Request) => {
       if (!Boolean(files.video)) {
         return reject(new Error('File is empty'))
       }
-      resolve((files.video as File[])[0])
+      const video = (files.video as File[])[0]
+      const ext = getExtention(video.originalFilename as string)
+      fs.renameSync(video.filepath, video.filepath + '.' + ext)
+      video.newFilename = video.newFilename + '.' + ext
+      resolve(video)
     })
   })
 }
