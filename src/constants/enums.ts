@@ -15,3 +15,8 @@ export enum newUserType {
   Login,
   Register
 }
+
+export enum MediaType {
+  Image,
+  Video
+}

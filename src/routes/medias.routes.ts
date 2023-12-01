@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { serveImageController, uploadSingleImageController } from '~/controllers/medias.controller'
+import { serveImageController, uploadImageController } from '~/controllers/medias.controller'
 
 const mediaRouter = Router()
 
@@ -9,7 +9,7 @@ const mediaRouter = Router()
  * Method: POST
  * Body: { file }
  */
-mediaRouter.post('/upload-image', uploadSingleImageController)
+mediaRouter.post('/upload-image', uploadImageController)
 
 /**
  * Description: View a single image

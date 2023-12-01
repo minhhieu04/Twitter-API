@@ -2,13 +2,11 @@ import { NextFunction, Request, Response } from 'express'
 import path from 'path'
 import { UPLOAD_DIR } from '~/constants/dir'
 import HTTP_STATUS from '~/constants/httpStatus'
-import { USERS_MESSAGE } from '~/constants/message'
 import mediaService from '~/services/medias.services'
 
-export const uploadSingleImageController = async (req: Request, res: Response, next: NextFunction) => {
-  const result = await mediaService.handleUploadSingleImage(req)
-  console.log(result)
-  return res.json({ result })
+export const uploadImageController = async (req: Request, res: Response, next: NextFunction) => {
+  const result = await mediaService.handleUploadImage(req)
+  return res.json(result)
 }
 
 export const serveImageController = (req: Request, res: Response) => {
