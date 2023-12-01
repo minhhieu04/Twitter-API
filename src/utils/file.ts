@@ -3,19 +3,28 @@ import fs from 'fs'
 import path from 'path'
 import formidable, { File } from 'formidable'
 import { Request } from 'express'
-import { UPLOAD_TEMP_DIR } from '~/constants/dir'
+import { UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
+import { forEach } from 'lodash'
 
 export const initFoler = () => {
-  if (!fs.existsSync(UPLOAD_TEMP_DIR)) {
-    fs.mkdirSync(UPLOAD_TEMP_DIR, {
-      recursive: true // The purpose is to create nested folder
-    })
-  }
+  ;[UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR].forEach((dir) => {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, {
+        recursive: true // The purpose is to create nested folder
+      })
+    }
+  })
+}
+
+export const getFileNameWithoutExtension = (fileName: string) => {
+  const nameArr = fileName.split('.')
+  nameArr.pop()
+  return nameArr.join('')
 }
 
 export const handleUploadImage = async (req: Request) => {
   const form = formidable({
-    uploadDir: UPLOAD_TEMP_DIR,
+    uploadDir: UPLOAD_IMAGE_TEMP_DIR,
     maxFiles: 6,
     keepExtensions: true,
     maxFileSize: 8 * 1024 * 1024, // 8MB
@@ -41,8 +50,29 @@ export const handleUploadImage = async (req: Request) => {
   })
 }
 
-export const getFileNameWithoutExtension = (fileName: string) => {
-  const nameArr = fileName.split('.')
-  nameArr.pop()
-  return nameArr.join('')
+export const handleUploadVideo = async (req: Request) => {
+  const form = formidable({
+    uploadDir: UPLOAD_VIDEO_DIR,
+    maxFiles: 1,
+    keepExtensions: true,
+    maxFileSize: 80 * 1024 * 1024, // 80MB
+    filter: function ({ name, originalFilename, mimetype }) {
+      const valid = name === 'video' && Boolean(mimetype?.includes('video/'))
+      if (!valid) {
+        form.emit('error' as any, new Error('File type is not valid') as any)
+      }
+      return valid
+    }
+  })
+  return new Promise<File>((resolve, reject) => {
+    form.parse(req, (err, fields, files) => {
+      if (err) {
+        return reject(err)
+      }
+      if (!Boolean(files.video)) {
+        return reject(new Error('File is empty'))
+      }
+      resolve((files.video as File[])[0])
+    })
+  })
 }

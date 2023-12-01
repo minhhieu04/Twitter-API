@@ -5,7 +5,7 @@ import userRouter from '~/routes/users.routes'
 import { defaultErrorHandler } from './middlewares/error.middlewares'
 import mediaRouter from './routes/medias.routes'
 import { initFoler } from './utils/file'
-import { UPLOAD_DIR } from './constants/dir'
+import { UPLOAD_IMAGE_DIR } from './constants/dir'
 
 env.config()
 
@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
 app.use('/users', userRouter)
 app.use('/medias', mediaRouter)
 app.use(defaultErrorHandler)
-// app.use('/medias/photo', express.static(UPLOAD_DIR))
+// app.use('/medias/photo', express.static(UPLOAD_IMAGE_DIR))
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)

@@ -60,3 +60,9 @@ export const USERS_MESSAGE = {
   OLD_PASSWORD_NOT_MATCH: 'Old password not match',
   CHANGE_PASSWORD_SUCCESS: 'Change password success'
 } as const
+
+export const MEDIAS_MESSAGE = {
+  NOT_FOUND: 'Not found',
+  UPLOAD_IMAGE_SUCCESS: 'Upload image successfully',
+  UPLOAD_VIDEO_SUCCESS: 'Upload video successfully'
+} as const

@@ -1,5 +1,10 @@
 import { Router } from 'express'
-import { serveImageController, uploadImageController } from '~/controllers/medias.controller'
+import {
+  serveImageController,
+  serveVideoController,
+  uploadImageController,
+  uploadVideoController
+} from '~/controllers/medias.controller'
 
 const mediaRouter = Router()
 
@@ -18,5 +23,21 @@ mediaRouter.post('/upload-image', uploadImageController)
  * Params: { name }
  */
 mediaRouter.get('/photo/:name', serveImageController)
+
+/**
+ * Description: Upload a single video
+ * Path: /upload-video
+ * Method: POST
+ * Body: { file }
+ */
+mediaRouter.post('/upload-video', uploadVideoController)
+
+/**
+ * Description: View a single video
+ * Path: /video/:name
+ * Method: GET
+ * Params: { name }
+ */
+mediaRouter.get('/video/:name', serveVideoController)
 
 export default mediaRouter
