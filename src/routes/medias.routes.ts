@@ -2,6 +2,7 @@ import { Router } from 'express'
 import {
   serveImageController,
   serveVideoController,
+  serveVideoStreamController,
   uploadImageController,
   uploadVideoController
 } from '~/controllers/medias.controller'
@@ -38,6 +39,7 @@ mediaRouter.post('/upload-video', uploadVideoController)
  * Method: GET
  * Params: { name }
  */
-mediaRouter.get('/video/:name', serveVideoController)
+mediaRouter.get('/video/:name', serveVideoController) // default
+mediaRouter.get('/video-stream/:name', serveVideoStreamController) // custom
 
 export default mediaRouter

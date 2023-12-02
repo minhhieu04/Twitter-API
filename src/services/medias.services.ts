@@ -39,8 +39,8 @@ class MediaService {
     const file = await handleUploadVideo(req)
     const result: Media = {
       url: isProduction
-        ? `${process.env.SERVER_HOST_URL}/medias/video/${file.newFilename}`
-        : `${process.env.SERVER_LOCAL_URL}/medias/video/${file.newFilename}`,
+        ? `${process.env.SERVER_HOST_URL}/medias/video-stream/${file.newFilename}`
+        : `${process.env.SERVER_LOCAL_URL}/medias/video-stream/${file.newFilename}`,
       type: MediaType.Video
     }
     return result
