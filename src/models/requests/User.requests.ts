@@ -67,3 +67,7 @@ export interface changePasswordReqBody extends ParamsDictionary {
   new_password: string
   confirm_new_password: string
 }
+
+export interface refreshTokenReqBody {
+  refresh_token: string
+}

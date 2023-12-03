@@ -299,7 +299,7 @@ class UsersService {
       },
       {
         $set: {
-          ...(payload as UpdateMeReqBody & { date_of_birth: Date })
+          ...(_payload as UpdateMeReqBody & { date_of_birth: Date })
         },
         $currentDate: {
           updated_at: true
@@ -365,6 +365,29 @@ class UsersService {
       }
     )
     return { message: USERS_MESSAGE.CHANGE_PASSWORD_SUCCESS }
+  }
+
+  async refreshToken({
+    user_id,
+    refresh_token,
+    verify
+  }: {
+    user_id: string
+    verify: UserVerifyStatus
+    refresh_token: string
+  }) {
+    const [newAccessToken, newRefreshToken] = await Promise.all([
+      this.signAccessToken({ user_id, verify }),
+      this.signRefreshToken({ user_id, verify }),
+      databaseService.refreshToken.deleteOne({ token: refresh_token })
+    ])
+    await databaseService.refreshToken.insertOne(
+      new RefreshToken({ user_id: new ObjectId(user_id), token: newRefreshToken })
+    )
+    return {
+      access_token: newAccessToken,
+      refresh_token: newRefreshToken
+    }
   }
 }
 
