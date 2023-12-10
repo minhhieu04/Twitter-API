@@ -7,6 +7,7 @@ import { isProduction } from '~/constants/configServer'
 import path from 'path'
 import { MediaType } from '~/constants/enums'
 import { Media } from '~/models/Orthers'
+import { encodeHLSWithMultipleVideoStreams } from '~/utils/video'
 
 class MediaService {
   async uploadImage(req: Request) {
@@ -37,11 +38,28 @@ class MediaService {
 
   async uploadVideo(req: Request) {
     const file = await handleUploadVideo(req)
+    console.log(file)
     const result: Media = {
       url: isProduction
         ? `${process.env.SERVER_HOST_URL}/medias/video-stream/${file.newFilename}`
         : `${process.env.SERVER_LOCAL_URL}/medias/video-stream/${file.newFilename}`,
       type: MediaType.Video
+    }
+    return result
+  }
+
+  async uploadHLSVideo(req: Request) {
+    const file = await handleUploadVideo(req)
+    // handle encodeHLSVideo
+    await encodeHLSWithMultipleVideoStreams(file.filepath)
+    // delete file originally uploaded
+    fs.unlinkSync(file.filepath)
+    const newIdName = getFileNameWithoutExtension(file.newFilename)
+    const result: Media = {
+      url: isProduction
+        ? `${process.env.SERVER_HOST_URL}/medias/video-stream-hls/${newIdName}`
+        : `${process.env.SERVER_LOCAL_URL}/medias/video-stream-hls/${newIdName}`,
+      type: MediaType.HLS
     }
     return result
   }

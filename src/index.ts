@@ -4,7 +4,7 @@ import databaseService from '~/services/database.services'
 import userRouter from '~/routes/users.routes'
 import { defaultErrorHandler } from './middlewares/error.middlewares'
 import mediaRouter from './routes/medias.routes'
-import { initFoler } from './utils/file'
+import { initFolder } from './utils/file'
 import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from './constants/dir'
 
 env.config()
@@ -15,7 +15,7 @@ databaseService.connect()
 app.use(express.json())
 
 // create uploads folder
-initFoler()
+initFolder()
 
 app.get('/', (req, res) => {
   res.send('Twitter API')

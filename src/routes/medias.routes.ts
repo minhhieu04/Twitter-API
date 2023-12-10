@@ -2,6 +2,7 @@ import { Router } from 'express'
 import {
   serveImageController,
   serveVideoController,
+  uploadVideoHLSController,
   serveVideoStreamController,
   uploadImageController,
   uploadVideoController
@@ -32,6 +33,7 @@ mediaRouter.get('/photo/:name', serveImageController)
  * Body: { file }
  */
 mediaRouter.post('/upload-video', uploadVideoController)
+mediaRouter.post('/upload-video-hls', uploadVideoHLSController)
 
 /**
  * Description: View a single video

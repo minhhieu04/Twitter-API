@@ -4,9 +4,9 @@ import path from 'path'
 import formidable, { File } from 'formidable'
 import { Request } from 'express'
 import { UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR } from '~/constants/dir'
-import { forEach } from 'lodash'
+import { v4 as uuidv4 } from 'uuid'
 
-export const initFoler = () => {
+export const initFolder = () => {
   ;[UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_DIR].forEach((dir) => {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, {
@@ -22,7 +22,7 @@ export const getFileNameWithoutExtension = (fileName: string) => {
   return nameArr.join('')
 }
 
-export const getExtention = (fileName: string) => {
+export const getExtension = (fileName: string) => {
   const nameArr = fileName.split('.')
   return nameArr[nameArr.length - 1]
 }
@@ -55,9 +55,19 @@ export const handleUploadImage = async (req: Request) => {
   })
 }
 
+/**
+ * Cách để lưu trữ video HLS vào 1 thư mục riêng biệt để tránh overwrite
+ * C1: Tạo unique id cho video ngay từ đầu => Tối ưu hơn
+ * C2: Đợi video upload xong rồi tạo folder để move video vào
+ */
+
 export const handleUploadVideo = async (req: Request) => {
+  const idName = uuidv4()
+  // Create a new folder named based on idName to store uploaded videos
+  const folderPath = path.resolve(UPLOAD_VIDEO_DIR, idName)
+  fs.mkdirSync(folderPath)
   const form = formidable({
-    uploadDir: UPLOAD_VIDEO_DIR,
+    uploadDir: folderPath,
     maxFiles: 1,
     maxFileSize: 80 * 1024 * 1024, // 80MB
     filter: function ({ name, originalFilename, mimetype }) {
@@ -66,8 +76,13 @@ export const handleUploadVideo = async (req: Request) => {
         form.emit('error' as any, new Error('File type is not valid') as any)
       }
       return valid
+    },
+    // change default fileName to unique id name
+    filename: function () {
+      return idName
     }
   })
+
   return new Promise<File>((resolve, reject) => {
     form.parse(req, (err, fields, files) => {
       if (err) {
@@ -77,9 +92,10 @@ export const handleUploadVideo = async (req: Request) => {
         return reject(new Error('File is empty'))
       }
       const video = (files.video as File[])[0]
-      const ext = getExtention(video.originalFilename as string)
+      const ext = getExtension(video.originalFilename as string)
       fs.renameSync(video.filepath, video.filepath + '.' + ext)
       video.newFilename = video.newFilename + '.' + ext
+      video.filepath = video.filepath + '.' + ext
       resolve(video)
     })
   })

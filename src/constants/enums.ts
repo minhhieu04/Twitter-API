@@ -18,5 +18,6 @@ export enum newUserType {
 
 export enum MediaType {
   Image,
-  Video
+  Video,
+  HLS
 }
