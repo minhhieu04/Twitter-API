@@ -5,7 +5,9 @@ import {
   uploadVideoHLSController,
   serveVideoStreamController,
   uploadImageController,
-  uploadVideoController
+  uploadVideoController,
+  serveM3u8Controller,
+  serveSegmentController
 } from '~/controllers/medias.controller'
 
 const mediaRouter = Router()
@@ -43,5 +45,7 @@ mediaRouter.post('/upload-video-hls', uploadVideoHLSController)
  */
 mediaRouter.get('/video/:name', serveVideoController) // default
 mediaRouter.get('/video-stream/:name', serveVideoStreamController) // custom
+mediaRouter.get('/video-hls/:id/master.m3u8', serveM3u8Controller)
+mediaRouter.get('/video-hls/:id/:v/:segment', serveSegmentController)
 
 export default mediaRouter

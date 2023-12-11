@@ -98,3 +98,29 @@ export const serveVideoStreamController = (req: Request, res: Response) => {
     videoStream.destroy()
   })
 }
+
+export const serveM3u8Controller = (req: Request, res: Response) => {
+  const { id } = req.params
+  const filePath = path.resolve(UPLOAD_VIDEO_DIR, id, 'master.m3u8')
+  console.log(filePath)
+  return res.sendFile(filePath, (err) => {
+    console.log(err)
+    if (err) {
+      if (!res.headersSent) {
+        res.status(HTTP_STATUS.NOT_FOUND).json({ message: MEDIAS_MESSAGE.NOT_FOUND })
+      }
+    }
+  })
+}
+
+export const serveSegmentController = (req: Request, res: Response) => {
+  const { id, v, segment } = req.params
+  // segment = 0.ts, 1.ts, 2.ts, 3.ts, ...
+  return res.sendFile(path.resolve(UPLOAD_VIDEO_DIR, id, v, segment), (err) => {
+    if (err) {
+      if (!res.headersSent) {
+        res.status(HTTP_STATUS.NOT_FOUND).json({ message: MEDIAS_MESSAGE.NOT_FOUND })
+      }
+    }
+  })
+}

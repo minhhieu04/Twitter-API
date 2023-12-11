@@ -54,11 +54,11 @@ class MediaService {
     await encodeHLSWithMultipleVideoStreams(file.filepath)
     // delete file originally uploaded
     fs.unlinkSync(file.filepath)
-    const newIdName = getFileNameWithoutExtension(file.newFilename)
+    const newIdName = getFileNameWithoutExtension(file.newFilename) // abcxyz.mp4 => abcxyz
     const result: Media = {
       url: isProduction
-        ? `${process.env.SERVER_HOST_URL}/medias/video-stream-hls/${newIdName}`
-        : `${process.env.SERVER_LOCAL_URL}/medias/video-stream-hls/${newIdName}`,
+        ? `${process.env.SERVER_HOST_URL}/medias/video-hls/${newIdName}/master.m3u8`
+        : `${process.env.SERVER_LOCAL_URL}/medias/video-hls/${newIdName}/master.m3u8`,
       type: MediaType.HLS
     }
     return result
