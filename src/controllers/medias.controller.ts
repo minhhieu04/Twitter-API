@@ -102,7 +102,6 @@ export const serveVideoStreamController = (req: Request, res: Response) => {
 export const serveM3u8Controller = (req: Request, res: Response) => {
   const { id } = req.params
   const filePath = path.resolve(UPLOAD_VIDEO_DIR, id, 'master.m3u8')
-  console.log(filePath)
   return res.sendFile(filePath, (err) => {
     console.log(err)
     if (err) {

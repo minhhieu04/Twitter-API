@@ -128,7 +128,6 @@ class MediaService {
 
   async uploadVideo(req: Request) {
     const file = await handleUploadVideo(req)
-    console.log(file)
     const result: Media = {
       url: isProduction
         ? `${process.env.SERVER_HOST_URL}/medias/video-stream/${file.newFilename}`
@@ -142,7 +141,9 @@ class MediaService {
     const file = await handleUploadVideo(req)
     // Handle video encoding using FIFO queue
     // => Not processing at the same time will cause the server to crash
-    queue.enqueue(file.filepath)
+    const newPath = file.filepath.split('\\').join('/')
+    // const newPath = file.filepath.replace(/\\/g, "/");
+    queue.enqueue(newPath)
     const newIdName = getFileNameWithoutExtension(file.newFilename) // abcxyz.mp4 => abcxyz
     const result: Media = {
       url: isProduction

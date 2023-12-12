@@ -36,7 +36,6 @@ const Video = () => {
     const response = await APICaller({ file })
     setResponse(response)
   }
-  console.log(response)
   return (
     <div>
       <input type='file' onChange={handleFileChange} />
