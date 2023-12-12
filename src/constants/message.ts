@@ -64,5 +64,6 @@ export const USERS_MESSAGE = {
 export const MEDIAS_MESSAGE = {
   NOT_FOUND: 'Not found',
   UPLOAD_IMAGE_SUCCESS: 'Upload image successfully',
-  UPLOAD_VIDEO_SUCCESS: 'Upload video successfully'
+  UPLOAD_VIDEO_SUCCESS: 'Upload video successfully',
+  GET_VIDEO_STATUS_SUCCESS: 'Get video status successfully'
 } as const

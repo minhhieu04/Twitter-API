@@ -5,9 +5,11 @@ import { UPLOAD_IMAGE_DIR } from '~/constants/dir'
 import fs from 'fs'
 import { isProduction } from '~/constants/configServer'
 import path from 'path'
-import { MediaType } from '~/constants/enums'
+import { EncodingStatus, MediaType } from '~/constants/enums'
 import { Media } from '~/models/Orthers'
 import { encodeHLSWithMultipleVideoStreams } from '~/utils/video'
+import databaseService from './database.services'
+import VideoStatus from '~/models/schemas/VideoStatus.shema'
 
 class Queue {
   items: string[]
@@ -17,9 +19,17 @@ class Queue {
     this.encoding = false
   }
 
-  enqueue(item: string) {
+  async enqueue(item: string) {
     this.items.push(item)
     this.processEncode()
+    const idName = getFileNameWithoutExtension(item.split('/').pop() as string)
+    await databaseService.videoStatus.insertOne(
+      new VideoStatus({
+        name: idName,
+        status: EncodingStatus.Pending,
+        message: 'Pending'
+      })
+    )
   }
 
   async processEncode() {
@@ -27,6 +37,19 @@ class Queue {
     if (this.items.length > 0) {
       this.encoding = true
       const videoPath = this.items[0]
+      const idName = getFileNameWithoutExtension(videoPath.split('/').pop() as string)
+      await databaseService.videoStatus.updateOne(
+        { name: idName },
+        {
+          $set: {
+            status: EncodingStatus.Processing,
+            message: 'Processing'
+          },
+          $currentDate: {
+            updated_at: true
+          }
+        }
+      )
       try {
         // handle encodeHLSVideo
         await encodeHLSWithMultipleVideoStreams(videoPath)
@@ -34,15 +57,43 @@ class Queue {
         fs.unlinkSync(videoPath)
         // removed from queue
         this.items.shift()
+        await databaseService.videoStatus.updateOne(
+          { name: idName },
+          {
+            $set: {
+              status: EncodingStatus.Success,
+              message: 'Success'
+            },
+            $currentDate: {
+              updated_at: true
+            }
+          }
+        )
         console.log(`Encode video ${videoPath} success`)
       } catch (error) {
-        console.log(`Encode video ${videoPath} error`)
-        console.log(error)
+        await databaseService.videoStatus
+          .updateOne(
+            { name: idName },
+            {
+              $set: {
+                status: EncodingStatus.Failed,
+                message: 'Failed'
+              },
+              $currentDate: {
+                updated_at: true
+              }
+            }
+          )
+          .catch((err) => {
+            console.error('Update video status error', err)
+          })
+        console.error(`Encode video ${videoPath} error`)
+        console.error(error)
       }
       this.encoding = false
       this.processEncode()
     } else {
-      console.log('Encode video queue is empty')
+      console.error('Encode video queue is empty')
     }
   }
 }
@@ -100,6 +151,11 @@ class MediaService {
       type: MediaType.HLS
     }
     return result
+  }
+
+  async getVideoStatus(id: string) {
+    const data = await databaseService.videoStatus.findOne({ name: id })
+    return data
   }
 }
 
