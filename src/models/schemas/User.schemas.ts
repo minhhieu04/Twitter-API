@@ -54,7 +54,7 @@ export default class User {
     this.bio = user.bio || ''
     this.location = user.location || ''
     this.website = user.website || ''
-    this.username = user.username || ''
+    this.username = user.username || `user${this._id}`
     this.avatar = user.avatar || ''
     this.cover_photo = user.cover_photo || ''
   }

@@ -8,7 +8,7 @@ env.config()
 
 const app = express()
 const PORT = process.env.PORT_LOCAL
-databaseService.connect()
+databaseService.connect().then(() => databaseService.createIndexUsers())
 app.use(express.json())
 
 app.get('/', (req, res) => {
