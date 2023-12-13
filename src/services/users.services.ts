@@ -28,7 +28,19 @@ class UsersService {
       }
     })
   }
-  private signRefreshToken({ user_id, verify }: { user_id: string; verify: UserVerifyStatus }) {
+  private signRefreshToken({ user_id, verify, exp }: { user_id: string; verify: UserVerifyStatus; exp?: number }) {
+    if (exp) {
+      return signToken({
+        payload: {
+          user_id,
+          token_type: TokenType.RefreshToken,
+          verify,
+          exp
+        },
+        privateKey: process.env.JWT_SECRET_REFRESH_TOKEN as string,
+        options: {}
+      })
+    }
     return signToken({
       payload: {
         user_id,
@@ -63,7 +75,7 @@ class UsersService {
       },
       privateKey: process.env.JWT_FORGOT_PASSWORD_TOKEN as string,
       options: {
-        expiresIn: process.env.FORGOT_PASSWORD_TOKEN_LIFE
+        expiresIn: process.env.FORGOT_PASSWORD_TOKEN_LIFE as string
       }
     })
   }
@@ -264,7 +276,7 @@ class UsersService {
           forgot_password_token: '',
           password: hashPassword(new_password)
         },
-        setCurrentDate: {
+        $currentDate: {
           updated_at: true
         }
       }
@@ -370,15 +382,17 @@ class UsersService {
   async refreshToken({
     user_id,
     refresh_token,
-    verify
+    verify,
+    exp
   }: {
     user_id: string
     verify: UserVerifyStatus
     refresh_token: string
+    exp: number
   }) {
     const [newAccessToken, newRefreshToken] = await Promise.all([
       this.signAccessToken({ user_id, verify }),
-      this.signRefreshToken({ user_id, verify }),
+      this.signRefreshToken({ user_id, verify, exp }),
       databaseService.refreshToken.deleteOne({ token: refresh_token })
     ])
     await databaseService.refreshToken.insertOne(
