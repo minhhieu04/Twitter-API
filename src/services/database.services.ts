@@ -33,27 +33,39 @@ class DatabaseService {
     }
   }
 
-  createIndexVideoStatus() {
-    this.videoStatus.createIndex({ name: 1 }, { unique: true })
+  async createIndexVideoStatus() {
+    const exists = await this.videoStatus.indexExists('name_1')
+    if (!exists) {
+      this.videoStatus.createIndex({ name: 1 }, { unique: true })
+    }
   }
 
-  createIndexUsers() {
-    this.users.createIndex({ email: 1, password: 1 })
-    this.users.createIndex({ email: 1 }, { unique: true })
-    this.users.createIndex({ username: 1 }, { unique: true })
+  async createIndexUsers() {
+    const exists = await this.users.indexExists(['email_1', 'email_1_password_1', 'username_1'])
+    if (!exists) {
+      this.users.createIndex({ email: 1, password: 1 })
+      this.users.createIndex({ email: 1 }, { unique: true })
+      this.users.createIndex({ username: 1 }, { unique: true })
+    }
   }
 
-  createIndexRefreshTokens() {
-    this.refreshToken.createIndex(
-      { exp: 1 },
-      // Automatically removed from the refreshToken collection when the exp field expires
-      { expireAfterSeconds: 0 }
-    )
-    this.refreshToken.createIndex({ to: 1 })
+  async createIndexRefreshTokens() {
+    const exists = await this.refreshToken.indexExists(['exp_1', 'token_1'])
+    if (!exists) {
+      this.refreshToken.createIndex(
+        { exp: 1 },
+        // Automatically removed from the refreshToken collection when the exp field expires
+        { expireAfterSeconds: 0 }
+      )
+      this.refreshToken.createIndex({ token: 1 })
+    }
   }
 
   createIndexFollowers() {
-    this.followers.createIndex({ user_id: 1, followed_user_id: 1 })
+    const exists = this.followers.indexExists('user_id_1_followed_user_id_1')
+    if (!exists) {
+      this.followers.createIndex({ user_id: 1, followed_user_id: 1 })
+    }
   }
 
   get users(): Collection<User> {
