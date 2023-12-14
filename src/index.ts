@@ -12,7 +12,9 @@ env.config()
 
 const app = express()
 const PORT = process.env.PORT_LOCAL
-databaseService.connect()
+databaseService.connect().then(() => {
+  databaseService.createIndexVideoStatus()
+})
 app.use(express.json())
 app.use(cors())
 

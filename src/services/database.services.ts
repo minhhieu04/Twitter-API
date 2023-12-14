@@ -33,6 +33,10 @@ class DatabaseService {
     }
   }
 
+  createIndexVideoStatus() {
+    this.videoStatus.createIndex({ name: 1 }, { unique: true })
+  }
+
   get users(): Collection<User> {
     return this.db.collection(process.env.DB_USERS_COLLECTION as string)
   }
