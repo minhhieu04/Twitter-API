@@ -32,6 +32,25 @@ class DatabaseService {
     }
   }
 
+  createIndexUsers() {
+    this.users.createIndex({ email: 1, password: 1 })
+    this.users.createIndex({ email: 1 }, { unique: true })
+    this.users.createIndex({ username: 1 }, { unique: true })
+  }
+
+  createIndexRefreshTokens() {
+    this.refreshToken.createIndex(
+      { exp: 1 },
+      // Automatically removed from the refreshToken collection when the exp field expires
+      { expireAfterSeconds: 0 }
+    )
+    this.refreshToken.createIndex({ to: 1 })
+  }
+
+  createIndexFollowers() {
+    this.followers.createIndex({ user_id: 1, followed_user_id: 1 })
+  }
+
   get users(): Collection<User> {
     return this.db.collection(process.env.DB_USERS_COLLECTION as string)
   }

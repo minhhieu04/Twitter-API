@@ -18,7 +18,8 @@ import {
   UpdateMeReqBody,
   FollowReqBody,
   UnfollowReqParams,
-  changePasswordReqBody
+  changePasswordReqBody,
+  refreshTokenReqBody
 } from '~/models/requests/User.requests'
 import User from '~/models/schemas/User.schemas'
 import databaseService from '~/services/database.services'
@@ -121,7 +122,7 @@ export const resetPasswordController = async (
   req: Request<ParamsDictionary, any, ResetPasswordReqBody>,
   res: Response
 ) => {
-  const { user_id } = req.decode_forgot_password as TokenPayload
+  const { user_id } = req.decode_forgot_password_token as TokenPayload
   const { new_password } = req.body
   const result = await usersService.resetPassword(user_id, new_password)
   return res.json({ result })
@@ -169,4 +170,14 @@ export const changePasswordController = async (
   const { new_password } = req.body
   const result = await usersService.changePassword(user_id, new_password)
   return res.json(result)
+}
+
+export const refreshTokenController = async (req: Request<any, any, refreshTokenReqBody>, res: Response) => {
+  const { user_id, verify, exp } = req.decode_refresh_token as TokenPayload
+  const { refresh_token } = req.body
+  const result = await usersService.refreshToken({ user_id, verify, refresh_token, exp })
+  return res.status(HTTP_STATUS.CREATED).json({
+    message: USERS_MESSAGE.REFRESH_TOKEN_SUCCESS,
+    result: result
+  })
 }

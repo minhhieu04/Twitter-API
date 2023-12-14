@@ -27,6 +27,8 @@ export interface TokenPayload extends JwtPayload {
   user_id: string
   token_type: TokenType
   verify: UserVerifyStatus
+  iat: number
+  exp: number
 }
 
 export interface ForgotPasswordReqBody {
@@ -66,4 +68,8 @@ export interface changePasswordReqBody extends ParamsDictionary {
   old_password: string
   new_password: string
   confirm_new_password: string
+}
+
+export interface refreshTokenReqBody {
+  refresh_token: string
 }
