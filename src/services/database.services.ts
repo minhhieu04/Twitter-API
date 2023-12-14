@@ -3,6 +3,7 @@ import { config } from 'dotenv'
 import User from '~/models/schemas/User.schemas'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import Follower from '~/models/schemas/Follower.schema'
+import VideoStatus from '~/models/schemas/VideoStatus.shema'
 config()
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@minhhieu.rhbjque.mongodb.net/?retryWrites=true&w=majority`
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -30,6 +31,10 @@ class DatabaseService {
       console.log('Could not connect to MongoDB. Please check your connection string.')
       throw err
     }
+  }
+
+  createIndexVideoStatus() {
+    this.videoStatus.createIndex({ name: 1 }, { unique: true })
   }
 
   createIndexUsers() {
@@ -61,6 +66,10 @@ class DatabaseService {
 
   get followers(): Collection<Follower> {
     return this.db.collection(process.env.DB_FOLLOWERS_COLLECTION as string)
+  }
+
+  get videoStatus(): Collection<VideoStatus> {
+    return this.db.collection(process.env.DB_VIDEO_STATUS_COLLECTION as string)
   }
 }
 const databaseService = new DatabaseService()
