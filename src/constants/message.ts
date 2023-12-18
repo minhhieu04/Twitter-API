@@ -90,5 +90,6 @@ export const BOOKMARKS_MESSAGE = {
 }
 
 export const LIKES_MESSAGE = {
-  LIKE_A_TWEET_SUCCESS: 'Like a tweet successfully'
+  LIKE_A_TWEET_SUCCESS: 'Like a tweet successfully',
+  UNLIKE_TWEET_SUCCESS: 'Unlike a tweet successfully'
 } as const

@@ -1,4 +1,4 @@
-import { ObjectId } from 'mongodb'
+import { ObjectId, WithId } from 'mongodb'
 import databaseService from './database.services'
 import Like from '~/models/schemas/Like.schema'
 
@@ -21,6 +21,13 @@ class LikeService {
       }
     )
     return likeDocument
+  }
+
+  async unlikeTweet(user_id: string, tweet_id: string) {
+    return await databaseService.likes.findOneAndDelete({
+      user_id: new ObjectId(user_id),
+      tweet_id: new ObjectId()
+    })
   }
 }
 const likeService = new LikeService()
