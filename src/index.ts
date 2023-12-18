@@ -8,6 +8,7 @@ import { initFolder } from './utils/file'
 import cors from 'cors'
 import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from './constants/dir'
 import tweetRouter from './routes/tweets.routes'
+import bookmarkRouter from './routes/bookmarks.routes'
 
 env.config()
 
@@ -32,6 +33,7 @@ app.get('/', (req, res) => {
 app.use('/users', userRouter)
 app.use('/medias', mediaRouter)
 app.use('/tweets', tweetRouter)
+app.use('/bookmarks', bookmarkRouter)
 app.use(defaultErrorHandler)
 // app.use('/medias/video', express.static(UPLOAD_VIDEO_DIR))
 
