@@ -16,6 +16,7 @@ export const createTweetController = async (req: Request<ParamsDictionary, any, 
 
 export const getTweetController = async (req: Request, res: Response) => {
   res.json({
-    message: 'ok'
+    message: TWEETS_MESSAGE.GET_TWEET_SUCCESSFULLY,
+    resutl: req.tweet
   })
 }
