@@ -10,6 +10,7 @@ import { UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from './constants/dir'
 import tweetRouter from './routes/tweets.routes'
 import bookmarkRouter from './routes/bookmarks.routes'
 import likeRouter from './routes/likes.routes'
+// import '~/utils/fake'
 
 env.config()
 
