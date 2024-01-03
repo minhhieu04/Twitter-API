@@ -66,6 +66,7 @@ class TweetsService {
     return result as WithId<{
       user_views: number
       guest_views: number
+      updated_at: Date
     }>
   }
 
@@ -73,12 +74,14 @@ class TweetsService {
     tweet_id,
     tweet_type,
     page,
-    limit
+    limit,
+    user_id
   }: {
     tweet_id: string
     tweet_type: TweetType
     page: number
     limit: number
+    user_id?: string
   }) {
     const tweets = await databaseService.tweets
       .aggregate<Tweet>([
@@ -158,7 +161,7 @@ class TweetsService {
                   input: '$tweets_children',
                   as: 'item',
                   cond: {
-                    $eq: ['$$item.type', 1]
+                    $eq: ['$$item.type', TweetType.Retweet]
                   }
                 }
               }
@@ -169,7 +172,7 @@ class TweetsService {
                   input: '$tweets_children',
                   as: 'item',
                   cond: {
-                    $eq: ['$$item.type', 2]
+                    $eq: ['$$item.type', TweetType.Comment]
                   }
                 }
               }
@@ -180,13 +183,10 @@ class TweetsService {
                   input: '$tweets_children',
                   as: 'item',
                   cond: {
-                    $eq: ['$$item.type', 3]
+                    $eq: ['$$item.type', TweetType.QuoteTweet]
                   }
                 }
               }
-            },
-            total_view: {
-              $add: ['$user_views', '$guest_views']
             }
           }
         },
@@ -204,9 +204,29 @@ class TweetsService {
       ])
       .toArray()
 
-    const total = await databaseService.tweets.countDocuments({
-      parent_id: new ObjectId(tweet_id),
-      type: tweet_type
+    const ids = tweets.map((tweet) => tweet._id as ObjectId)
+    const date = new Date()
+    const [, total] = await Promise.all([
+      databaseService.tweets.updateMany(
+        {
+          _id: {
+            $in: ids
+          }
+        },
+        {
+          $inc: user_id ? { user_views: 1 } : { guest_views: 1 },
+          $set: {
+            updated_at: date
+          }
+        }
+      ),
+      databaseService.tweets.countDocuments({
+        parent_id: new ObjectId(tweet_id),
+        type: tweet_type
+      })
+    ])
+    tweets.forEach((tweet) => {
+      ;(tweet.updated_at = date), user_id ? (tweet.user_views += 1) : (tweet.guest_views += 1)
     })
     return {
       tweets,

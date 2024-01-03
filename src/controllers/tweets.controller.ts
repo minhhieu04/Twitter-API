@@ -23,7 +23,8 @@ export const getTweetController = async (req: Request, res: Response) => {
     ...req.tweet,
     guest_views: result.guest_views,
     user_views: result.user_views,
-    total_views: result.guest_views + result.user_views
+    total_views: result.guest_views + result.user_views,
+    updated_at: result.updated_at
   } as Tweet
   res.json({
     message: TWEETS_MESSAGE.GET_TWEET_SUCCESSFULLY,
@@ -35,12 +36,14 @@ export const getTweetChildrenController = async (req: Request, res: Response) =>
   const limit = +(req.query.limit as string)
   const page = +(req.query.page as string)
   const tweet_type = +(req.query.tweet_type as string) as TweetType
+  const user_id = req.decode_authorization?.user_id
 
   const { total, tweets } = await tweetsService.getTweetChildren({
     tweet_id: req.params.tweet_id,
     limit,
     page,
-    tweet_type
+    tweet_type,
+    user_id
   })
   res.json({
     message: TWEETS_MESSAGE.GET_TWEET_CHILDREN_SUCCESSFULLY,
