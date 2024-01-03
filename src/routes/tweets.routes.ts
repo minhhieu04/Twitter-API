@@ -1,3 +1,4 @@
+import { getTweetChildrenValidator } from './../middlewares/tweets.middlewares'
 import { isUserLoggedInValidator } from './../middlewares/users.middlewares'
 import { Router } from 'express'
 import { createTweetController, getTweetChildrenController, getTweetController } from '~/controllers/tweets.controller'
@@ -48,6 +49,7 @@ tweetRouter.get(
 tweetRouter.get(
   '/:tweet_id/children',
   tweetIdValidator,
+  getTweetChildrenValidator,
   isUserLoggedInValidator(accessTokenValidator),
   isUserLoggedInValidator(verifiedUserValidator),
   audienceValidator,

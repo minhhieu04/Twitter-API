@@ -13,7 +13,7 @@ import databaseService from '~/services/database.services'
 import { numberEnumToArray } from '~/utils/handles'
 import { validate } from '~/utils/validation'
 
-const tweetType = numberEnumToArray(TweetType)
+const tweetTypes = numberEnumToArray(TweetType)
 const tweetAudience = numberEnumToArray(TweetAudience)
 const mediaType = numberEnumToArray(MediaType)
 
@@ -21,7 +21,7 @@ export const createTweetValidator = validate(
   checkSchema({
     type: {
       isIn: {
-        options: [tweetType], // [[0,1,2,3]]
+        options: [tweetTypes], // [[0,1,2,3]]
         errorMessage: TWEETS_MESSAGE.INVALID_TYPE
       }
     },
@@ -274,3 +274,39 @@ export const audienceValidator = wrapRequestHandler(async (req: Request, res: Re
   }
   next()
 })
+
+export const getTweetChildrenValidator = validate(
+  checkSchema(
+    {
+      tweet_type: {
+        isIn: {
+          options: [tweetTypes],
+          errorMessage: TWEETS_MESSAGE.INVALID_TYPE
+        }
+      },
+      limit: {
+        isNumeric: true,
+        custom: {
+          options: async (value: string, { req }) => {
+            if (+value > 100 || +value < 1) {
+              throw new Error('1 <= limit <= 100')
+            }
+            return true
+          }
+        }
+      },
+      page: {
+        isNumeric: true,
+        custom: {
+          options: async (value: string, { req }) => {
+            if (+value < 1) {
+              throw new Error('page >= 1')
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['query']
+  )
+)
