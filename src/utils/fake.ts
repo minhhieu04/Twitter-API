@@ -12,9 +12,9 @@ import tweetsService from '~/services/tweets.services'
 // Mật khẩu cho các fake user
 const PASSWORD = 'Hieu123'
 // ID tài khoản chính của mình, dùng để follow user khác
-const MYID = new ObjectId('655a3d3efd796a5de3dd87e9')
+const MYID = new ObjectId('6596624e3d46a6660f9c2397')
 // Số lượng user được tạo, mỗi user mặc định sẽ có 2 tweet
-const USER_COUNT = 500
+const USER_COUNT = 50
 
 const createRandomUser = () => {
   const user: RegisterReqBody = {
@@ -55,6 +55,7 @@ const insertMultipleUsers = async (users: RegisterReqBody[]) => {
       await databaseService.users.insertOne(
         new User({
           ...user,
+          _id: user_id,
           username: `user${user_id.toString()}`,
           password: hashPassword(user.password),
           date_of_birth: new Date(user.date_of_birth),
@@ -71,14 +72,14 @@ const insertMultipleUsers = async (users: RegisterReqBody[]) => {
 const followMultipleUsers = async (user_id: ObjectId, followed_user_ids: ObjectId[]) => {
   console.log('Start following...')
   const result = await Promise.all(
-    followed_user_ids.map((followed_user_id) => {
+    followed_user_ids.map((followed_user_id) =>
       databaseService.followers.insertOne(
         new Follower({
           user_id,
           followed_user_id: new ObjectId(followed_user_id)
         })
       )
-    })
+    )
   )
   console.log(`Followed ${result.length} users`)
 }
@@ -101,6 +102,6 @@ const insertMultipleTweets = async (ids: ObjectId[]) => {
 }
 
 insertMultipleUsers(users).then((ids) => {
-  followMultipleUsers(new ObjectId(MYID), ids)
+  followMultipleUsers(MYID, ids)
   insertMultipleTweets(ids)
 })
