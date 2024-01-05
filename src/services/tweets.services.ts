@@ -92,6 +92,12 @@ class TweetsService {
           }
         },
         {
+          $skip: limit * (page - 1)
+        },
+        {
+          $limit: limit
+        },
+        {
           $lookup: {
             from: 'hashtags',
             localField: 'hashtags',
@@ -194,12 +200,6 @@ class TweetsService {
           $project: {
             tweets_children: 0
           }
-        },
-        {
-          $skip: limit * (page - 1)
-        },
-        {
-          $limit: limit
         }
       ])
       .toArray()
@@ -277,6 +277,12 @@ class TweetsService {
               }
             ]
           }
+        },
+        {
+          $skip: limit * (page - 1)
+        },
+        {
+          $limit: limit
         },
         {
           $unwind: {
@@ -393,12 +399,6 @@ class TweetsService {
               date_of_birth: 0
             }
           }
-        },
-        {
-          $skip: limit * (page - 1)
-        },
-        {
-          $limit: limit
         }
       ])
       .toArray()
