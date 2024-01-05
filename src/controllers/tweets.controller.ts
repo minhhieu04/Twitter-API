@@ -62,13 +62,19 @@ export const getNewFeedsController = async (req: Request<ParamsDictionary, any, 
   const { user_id } = req.decode_authorization as TokenPayload
   const limit = +req.query.limit
   const page = +req.query.page
-  const result = await tweetsService.getNewFeeds({
+  const { newFeeds, total } = await tweetsService.getNewFeeds({
     user_id,
     limit,
     page
   })
   res.json({
     message: TWEETS_MESSAGE.GET_NEW_FEEDS_SUCCESSFULLY,
-    result
+    result: {
+      newFeeds,
+      total,
+      limit,
+      page,
+      total_page: Math.ceil(total / limit)
+    }
   })
 }
