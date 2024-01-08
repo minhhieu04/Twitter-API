@@ -7,9 +7,16 @@ export const searchController = async (req: Request<ParamsDictionary, any, any, 
   const page = +req.query.page
   const limit = +req.query.limit
   const content = req.query.content
-  const resutl = await searchService.search({ content, page, limit })
+  const user_id = req.decode_authorization?.user_id as string
+  const { tweets, total } = await searchService.search({ content, page, limit, user_id })
   res.json({
     message: SEARCHS_MESSAGE.SEARCH_SUCCESS,
-    resutl
+    resutl: {
+      tweets,
+      total,
+      limit,
+      page,
+      total_page: Math.ceil(total / limit)
+    }
   })
 }

@@ -22,6 +22,7 @@ databaseService.connect().then(() => {
   databaseService.createIndexRefreshTokens()
   databaseService.createIndexFollowers()
   databaseService.createIndexVideoStatus()
+  databaseService.createIndexTweets()
 })
 app.use(express.json())
 app.use(cors())

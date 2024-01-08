@@ -19,7 +19,7 @@ class DatabaseService {
     this.client = new MongoClient(uri, {
       serverApi: {
         version: ServerApiVersion.v1,
-        strict: true,
+        strict: false,
         deprecationErrors: true
       }
     })
@@ -65,10 +65,17 @@ class DatabaseService {
     }
   }
 
-  createIndexFollowers() {
-    const exists = this.followers.indexExists('user_id_1_followed_user_id_1')
+  async createIndexFollowers() {
+    const exists = this.followers.indexExists(['user_id_1_followed_user_id_1'])
     if (!exists) {
       this.followers.createIndex({ user_id: 1, followed_user_id: 1 })
+    }
+  }
+
+  async createIndexTweets() {
+    const exists = await this.tweets.indexExists(['content_text'])
+    if (!exists) {
+      this.tweets.createIndex({ content: 'text' }, { default_language: 'none' })
     }
   }
 
